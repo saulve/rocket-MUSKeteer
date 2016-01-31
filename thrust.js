@@ -7,6 +7,7 @@ function preload() {
     game.load.spritesheet('ship', 'images/rockets.png', 35, 177, 8);
     game.load.image('platform', 'images/platform2.png');
     game.load.spritesheet('explosion', 'images/explode.png', 128, 128);
+    game.load.bitmapFont('desyrel', 'fonts/desyrel.png', 'fonts/desyrel.xml');
 
 
 }
@@ -65,16 +66,22 @@ function create() {
     if(ship.angle > 5 || ship.angle < -5) {
         console.log("Should explode");
         this.loadTexture('explosion', 0);
-        this.animations.add('bam');
-        this.animations.play('bam',15, false);
+        animate = this.animations.add('bam', [0,1,2,3], 60, false);
+        animate.killOnComplete = true;
+        this.animations.play('bam');
         game.input.keyboard.enabled = false;
         var spc = this;
         setTimeout(function(){spc.kill();
             create();}, 2000);
     }
+    else{
+        var text = game.add.bitmapText(200, 400, 'desyrel', 'Congratulations!', 32);
+            text.anchor.x = 0.5;
+            text.anchor.y = 0.25;
+    }
 }
 function update() {
-
+    
     if (cursors.left.isDown)
     {
         ship.body.rotateLeft(100);
