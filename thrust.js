@@ -6,6 +6,7 @@ function preload() {
     game.load.image('stars', 'images/starfield.jpg');
     game.load.spritesheet('ship', 'images/rockets.png', 35, 177, 8);
     game.load.image('platform', 'images/platform2.png');
+    game.load.spritesheet('explosion', 'images/explode.png', 128, 128);
 
 
 }
@@ -20,8 +21,16 @@ function create() {
     game.world.setBounds(0, 0, 600, 800);
 
     game.physics.startSystem(Phaser.Physics.P2JS);
+    game.physics.p2.setImpactEvents(true);
     game.physics.p2.gravity.y = 100;
     game.physics.p2.defaultRestitution = 0.7;
+
+
+    //  Create our collision groups. One for the player, one for the pandas
+        var playerCollisionGroup = game.physics.p2.createCollisionGroup();
+        var platformCollisionGroup = game.physics.p2.createCollisionGroup();
+
+        game.physics.p2.updateBoundsCollisionGroup();
 
     starfield = game.add.tileSprite(0, 0, 400, 600, 'stars');
     starfield.fixedToCamera = true;
@@ -31,20 +40,39 @@ function create() {
     game.physics.p2.enable(platform);
     platform.body.static = true;
     platform.body.setRectangle(250, 15, 0, 10, 0);
+
+    platform.body.setCollisionGroup(platformCollisionGroup);
+    platform.body.collides([platformCollisionGroup, playerCollisionGroup]);
     
     ship = game.add.sprite(350, 100, 'ship');
-    ship.animations.add('flames');
-    
-    
-
+    // ship.body.setRectangle(35, 177);
     game.physics.p2.enable(ship);
+    ship.animations.add('flames');
+    ship.body.setCollisionGroup(playerCollisionGroup);
+    //If ship collides
+    ship.body.collides(platformCollisionGroup, hitShip, ship);
 
     game.camera.follow(ship);
 
     cursors = game.input.keyboard.createCursorKeys();
+    game.input.keyboard.enabled = true;
+    
+  
 
 }
-
+  function hitShip(ship, platform) {
+    
+    if(ship.angle > 5 || ship.angle < -5) {
+        console.log("Should explode");
+        this.loadTexture('explosion', 0);
+        this.animations.add('bam');
+        this.animations.play('bam',15, false);
+        game.input.keyboard.enabled = false;
+        var spc = this;
+        setTimeout(function(){spc.kill();
+            create();}, 2000);
+    }
+}
 function update() {
 
     if (cursors.left.isDown)
@@ -85,5 +113,5 @@ function update() {
     {
         starfield.tilePosition.y -= (ship.body.velocity.y * game.time.physicsElapsed);
     }
-
+    
 }
