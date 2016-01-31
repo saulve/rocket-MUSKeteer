@@ -20,16 +20,17 @@ function create() {
     game.world.setBounds(0, 0, 600, 800);
 
     game.physics.startSystem(Phaser.Physics.P2JS);
+    game.physics.p2.gravity.y = 100;
     game.physics.p2.defaultRestitution = 0.8;
 
     starfield = game.add.tileSprite(0, 0, 400, 600, 'stars');
     starfield.fixedToCamera = true;
 
-    ship = game.add.sprite(200, 0, 'ship');
-    ship.animations.add('flames');
 
     platform = game.add.sprite(0, 800 - 56, 'platform');
 
+    ship = game.add.sprite(350, 100, 'ship');
+    ship.animations.add('flames');
     
 
     game.physics.p2.enable(ship);
